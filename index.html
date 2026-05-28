@@ -3,358 +3,434 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sitro Market - Premium Services</title>
+    <title>Sitro Market</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
-        body { font-family: 'Inter', system-ui, sans-serif; }
-        .hero-bg { background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1614680376739-414d95ff43df?q=80&w=2070') center/cover no-repeat; }
-        .neon-text { text-shadow: 0 0 10px #a855f7, 0 0 20px #a855f7, 0 0 40px #c026d3; }
-        .product-card { transition: all 0.4s ease; background: linear-gradient(145deg, #794b94, #27272a); }
-        .product-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgb(168 85 247 / 0.4); }
-        .discord-icon { font-size: 4.5rem; color: #5865F2; filter: drop-shadow(0 0 20px #5865F2); }
-        .stat-number { font-size: 3.5rem; font-weight: 800; background: linear-gradient(to right, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .modal { display: none !important; }
+        .modal.active { display: flex !important; }
+        
+        .modal-content { max-height: 85vh; overflow-y: auto; }
+
+        .modal-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #27272a;
+            padding: 20px 24px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+        }
+        .modal-item .name { flex: 1; }
+        .modal-item .price { 
+            width: 110px; 
+            text-align: center; 
+            font-weight: 600; 
+            color: #10b981; 
+        }
+
+        .hero-bg {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.4), rgba(79, 70, 229, 0.35), rgba(124, 58, 237, 0.3), rgba(168, 85, 247, 0.25));
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(79, 70, 229, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .faq-item { 
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .faq-answer { 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), padding 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            padding-top: 0;
+        }
+        
+        .faq-item.open .faq-answer { 
+            max-height: 500px;
+            opacity: 1;
+            padding-top: 1rem;
+        }
+        
+        .faq-item .chevron { 
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .faq-item.open .chevron { 
+            transform: rotate(180deg);
+        }
+
+        .feature-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-icon {
+            font-size: 1.75rem;
+        }
+
+        .feature-text {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-200">
+<body class="bg-black text-white">
 
-    <!-- NAVBAR -->
-    <nav class="bg-black border-b border-zinc-800 fixed w-full z-50">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="text-4xl font-bold text-purple-500 neon-text">Sitro</div>
-                <div class="text-4xl font-bold">Market</div>
+    <!-- Navbar -->
+    <nav class="bg-black border-b border-zinc-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-3xl font-bold bg-gradient-to-r from-purple-400 to-violet-500 bg-clip-text text-transparent">Sitro</span>
+                <span class="text-3xl font-bold">Market</span>
             </div>
+            
             <div class="hidden md:flex items-center gap-8 text-sm font-medium">
-                <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="hover:text-purple-400 transition">Home</a>
-                <a href="#shop" class="hover:text-purple-400 transition">Products</a>
-                <a href="#" onclick="openTermsModal(); return false;" class="hover:text-purple-400 transition">Terms</a>
+                <a onclick="scrollToTop()" class="hover:text-purple-400 transition-colors cursor-pointer">Home</a>
+                <a onclick="scrollToServices()" class="hover:text-purple-400 transition-colors cursor-pointer">Products</a>
+                <a onclick="openModal('terms-modal')" class="hover:text-purple-400 transition-colors cursor-pointer">Terms</a>
             </div>
-            <a href="https://discord.gg/R3FdPRM2t" target="_blank" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition">
-                <i class="fab fa-discord"></i> Join Our Discord
-            </a>
+
+            <button onclick="joinDiscord()" class="flex items-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-500 rounded-full font-medium transition-all">
+                <i class="fab fa-discord"></i>
+                <span>Join Our Discord</span>
+            </button>
         </div>
     </nav>
 
-    <!-- HERO -->
-    <section class="hero-bg min-h-screen flex items-center pt-20">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <h1 class="text-6xl md:text-7xl font-bold tracking-tighter mb-6">Premium Services</h1>
-            <p class="text-xl text-zinc-400 max-w-2xl mx-auto mb-12">Discord • Streaming • Roblox • Social • VPN • FiveM</p>
-            
-            <div class="flex flex-wrap justify-center gap-16 md:gap-24 mt-8">
-                <div class="text-center"><div class="stat-number">12+</div><div class="text-zinc-400 text-sm tracking-widest mt-2">PRODUCTS SOLD</div></div>
-                <div class="text-center"><div class="stat-number">7+</div><div class="text-zinc-400 text-sm tracking-widest mt-2">SATISFIED CUSTOMERS</div></div>
-                <div class="text-center"><div class="stat-number">5.00/5</div><div class="text-zinc-400 text-sm tracking-widest mt-2">AVERAGE RATING</div></div>
+    <!-- Hero -->
+    <section class="hero-bg flex items-center relative">
+        <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
+            <h1 class="text-6xl md:text-7xl font-bold tracking-tighter mb-6 text-white">
+                Welcome to <span class="text-purple-300">Sitro Market</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-zinc-300 max-w-2xl mx-auto">
+                Professional marketplace for Discord, Streaming, Roblox, Social Media, VPN, FiveM and more.
+            </p>
+
+            <div class="flex justify-center gap-16 my-16">
+                <div class="text-center"><div class="text-6xl font-bold text-white">5+</div><div class="text-xs tracking-widest text-zinc-400 mt-1">PRODUCTS SOLD</div></div>
+                <div class="text-center"><div class="text-6xl font-bold text-white">4+</div><div class="text-xs tracking-widest text-zinc-400 mt-1">SATISFIED CUSTOMERS</div></div>
+                <div class="text-center"><div class="text-6xl font-bold text-white">5.00/5</div><div class="text-xs tracking-widest text-zinc-400 mt-1">AVERAGE RATING</div></div>
             </div>
 
-            <a href="#shop" class="inline-block mt-16 bg-purple-600 hover:bg-purple-700 px-12 py-5 rounded-2xl text-lg font-semibold transition">Browse Products</a>
-        </div>
-    </section>
+            <button onclick="scrollToServices()" class="px-12 py-5 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xl rounded-3xl transition-all">
+                Browse Products
+            </button>
 
-    <!-- SHOP SECTION -->
-    <section id="shop" class="py-24 bg-zinc-900">
-        <div class="max-w-7xl mx-auto px-6">
-            <h2 class="text-5xl font-bold text-center mb-16">Our Products</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
-                <div onclick="openDiscordModal()" class="product-card border border-purple-500/50 rounded-3xl p-12 text-center cursor-pointer hover:border-purple-400">
-                    <i class="fab fa-discord discord-icon mb-8"></i><h3 class="text-4xl font-bold mb-4">Discord Services</h3><p class="text-zinc-400 mb-8">Nitro, Boosts & More</p><div class="inline-block bg-purple-600 text-white px-8 py-3 rounded-2xl font-semibold">View Services →</div>
+            <!-- Features Under Browse Products -->
+            <div class="flex justify-center gap-12 mt-12">
+                <div class="feature-item">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-text">24/7 Support</div>
                 </div>
-                <div onclick="openStreamingModal()" class="product-card border border-purple-500/50 rounded-3xl p-12 text-center cursor-pointer hover:border-purple-400">
-                    <i class="fas fa-tv text-7xl text-red-500 mb-8"></i><h3 class="text-4xl font-bold mb-4">Streaming Services</h3><p class="text-zinc-400 mb-8">Lifetime Accounts</p><div class="inline-block bg-purple-600 text-white px-8 py-3 rounded-2xl font-semibold">View Services →</div>
+                <div class="feature-item">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-text">Cheap Prices</div>
                 </div>
-                <div onclick="openRobloxModal()" class="product-card border border-purple-500/50 rounded-3xl p-12 text-center cursor-pointer hover:border-purple-400">
-                    <i class="fas fa-gamepad text-7xl text-green-500 mb-8"></i><h3 class="text-4xl font-bold mb-4">Roblox Services</h3><p class="text-zinc-400 mb-8">Robux Accounts</p><div class="inline-block bg-purple-600 text-white px-8 py-3 rounded-2xl font-semibold">View Services →</div>
-                </div>
-                <div onclick="openSocialModal()" class="product-card border border-purple-500/50 rounded-3xl p-12 text-center cursor-pointer hover:border-purple-400">
-                    <i class="fas fa-users text-7xl text-pink-500 mb-8"></i><h3 class="text-4xl font-bold mb-4">Social Services</h3><p class="text-zinc-400 mb-8">Followers & Growth</p><div class="inline-block bg-purple-600 text-white px-8 py-3 rounded-2xl font-semibold">View Services →</div>
-                </div>
-                <div onclick="openVpnModal()" class="product-card border border-purple-500/50 rounded-3xl p-12 text-center cursor-pointer hover:border-purple-400">
-                    <i class="fas fa-shield-alt text-7xl text-cyan-500 mb-8"></i><h3 class="text-4xl font-bold mb-4">VPN Services</h3><p class="text-zinc-400 mb-8">Lifetime Accounts</p><div class="inline-block bg-purple-600 text-white px-8 py-3 rounded-2xl font-semibold">View Services →</div>
-                </div>
-                <div onclick="openFivemModal()" class="product-card border border-purple-500/50 rounded-3xl p-12 text-center cursor-pointer hover:border-purple-400">
-                    <i class="fas fa-car text-7xl text-orange-500 mb-8"></i><h3 class="text-4xl font-bold mb-4">FiveM Services</h3><p class="text-zinc-400 mb-8">Ready Accounts</p><div class="inline-block bg-purple-600 text-white px-8 py-3 rounded-2xl font-semibold">View Services →</div>
-                </div>
-                <div onclick="openSuppliesModal()" class="product-card border border-purple-500/50 rounded-3xl p-12 text-center cursor-pointer hover:border-purple-400">
-                    <i class="fas fa-boxes-stacked text-7xl text-amber-500 mb-8"></i><h3 class="text-4xl font-bold mb-4">Suppliers</h3><p class="text-zinc-400 mb-8">Tools & Extras</p><div class="inline-block bg-purple-600 text-white px-8 py-3 rounded-2xl font-semibold">View Services →</div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">Fast Delivery</div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Services -->
+    <section id="services" class="max-w-7xl mx-auto px-6 py-20 bg-zinc-950">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-3">Our Services</h2>
+            <p class="text-zinc-400 text-lg">Click on a category to view details and prices</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div onclick="openModal('discord-modal')" class="service-card bg-zinc-900 border border-zinc-800 rounded-3xl p-8 cursor-pointer hover:border-purple-500 transition">
+                <div class="flex items-center gap-4 mb-6"><i class="fab fa-discord text-5xl text-indigo-400"></i><h3 class="text-2xl font-semibold">Discord Services</h3></div>
+                <p class="text-zinc-400">Accounts • Nitro • Boost • Members</p>
+            </div>
+            <div onclick="openModal('streaming-modal')" class="service-card bg-zinc-900 border border-zinc-800 rounded-3xl p-8 cursor-pointer hover:border-purple-500 transition">
+                <div class="flex items-center gap-4 mb-6"><i class="fas fa-film text-5xl text-violet-400"></i><h3 class="text-2xl font-semibold">Streaming Services</h3></div>
+                <p class="text-zinc-400">Netflix • Disney+ • Spotify & more</p>
+            </div>
+            <div onclick="openModal('roblox-modal')" class="service-card bg-zinc-900 border border-zinc-800 rounded-3xl p-8 cursor-pointer hover:border-purple-500 transition">
+                <div class="flex items-center gap-4 mb-6"><i class="fas fa-gamepad text-5xl text-blue-400"></i><h3 class="text-2xl font-semibold">Roblox Services</h3></div>
+                <p class="text-zinc-400">Robux Accounts</p>
+            </div>
+            <div onclick="openModal('social-modal')" class="service-card bg-zinc-900 border border-zinc-800 rounded-3xl p-8 cursor-pointer hover:border-purple-500 transition">
+                <div class="flex items-center gap-4 mb-6"><i class="fas fa-users text-5xl text-pink-400"></i><h3 class="text-2xl font-semibold">Social Services</h3></div>
+                <p class="text-zinc-400">Followers • Instagram & more</p>
+            </div>
+            <div onclick="openModal('vpn-modal')" class="service-card bg-zinc-900 border border-zinc-800 rounded-3xl p-8 cursor-pointer hover:border-purple-500 transition">
+                <div class="flex items-center gap-4 mb-6"><i class="fas fa-shield-alt text-5xl text-cyan-400"></i><h3 class="text-2xl font-semibold">VPN Services</h3></div>
+                <p class="text-zinc-400">Premium VPNs</p>
+            </div>
+            <div onclick="openModal('fivem-modal')" class="service-card bg-zinc-900 border border-zinc-800 rounded-3xl p-8 cursor-pointer hover:border-purple-500 transition">
+                <div class="flex items-center gap-4 mb-6"><i class="fas fa-car text-5xl text-orange-400"></i><h3 class="text-2xl font-semibold">FiveM Services</h3></div>
+                <p class="text-zinc-400">Ready Accounts • Spoofer</p>
+            </div>
+            <div onclick="openModal('suppliers-modal')" class="service-card bg-zinc-900 border border-zinc-800 rounded-3xl p-8 cursor-pointer hover:border-purple-500 transition">
+                <div class="flex items-center gap-4 mb-6"><i class="fas fa-truck text-5xl text-amber-400"></i><h3 class="text-2xl font-semibold">Suppliers</h3></div>
+                <p class="text-zinc-400">Bulk & Reseller</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="max-w-7xl mx-auto px-6 py-20 bg-zinc-950">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div onclick="toggleFaq(this)" class="faq-item bg-zinc-900 rounded-3xl p-6 cursor-pointer">
+                    <div class="flex items-center justify-between"><div class="flex items-center gap-3"><span class="text-2xl">💳</span><h3 class="font-medium text-lg">What payment methods do you accept?</h3></div><i class="fas fa-chevron-down chevron text-zinc-400"></i></div>
+                    <div class="faq-answer text-zinc-400">We accept PayPal and MobilePay. More payment options will be available in the future.</div>
+                </div>
+                <div onclick="toggleFaq(this)" class="faq-item bg-zinc-900 rounded-3xl p-6 cursor-pointer">
+                    <div class="flex items-center justify-between"><div class="flex items-center gap-3"><span class="text-2xl">💰</span><h3 class="font-medium text-lg">Can I request a refund?</h3></div><i class="fas fa-chevron-down chevron text-zinc-400"></i></div>
+                    <div class="faq-answer text-zinc-400">Due to the digital nature of our products, we do not offer refunds unless a product issue occurs that we are unable to resolve.</div>
+                </div>
+                <div onclick="toggleFaq(this)" class="faq-item bg-zinc-900 rounded-3xl p-6 cursor-pointer">
+                    <div class="flex items-center justify-between"><div class="flex items-center gap-3"><span class="text-2xl">🔄</span><h3 class="font-medium text-lg">Are product updates included?</h3></div><i class="fas fa-chevron-down chevron text-zinc-400"></i></div>
+                    <div class="faq-answer text-zinc-400">Yes, we provide updates as necessary to ensure continued performance and compatibility.</div>
+                </div>
+                <div onclick="toggleFaq(this)" class="faq-item bg-zinc-900 rounded-3xl p-6 cursor-pointer">
+                    <div class="flex items-center justify-between"><div class="flex items-center gap-3"><span class="text-2xl">🔔</span><h3 class="font-medium text-lg">How can I stay updated on new products and updates?</h3></div><i class="fas fa-chevron-down chevron text-zinc-400"></i></div>
+                    <div class="faq-answer text-zinc-400">Join our Discord community to receive real-time announcements, product launches, and updates.</div>
+                </div>
+                <div onclick="toggleFaq(this)" class="faq-item bg-zinc-900 rounded-3xl p-6 cursor-pointer">
+                    <div class="flex items-center justify-between"><div class="flex items-center gap-3"><span class="text-2xl">🛠️</span><h3 class="font-medium text-lg">How can i get support?</h3></div><i class="fas fa-chevron-down chevron text-zinc-400"></i></div>
+                    <div class="faq-answer text-zinc-400">Join our Discord server and open a ticket in the support channel. Our team is ready to help you.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black py-12 border-t border-zinc-800">
+        <div class="max-w-7xl mx-auto px-6 text-center text-zinc-500 text-sm">
+            © 2026 Sitro Market • All Rights Reserved
+        </div>
+    </footer>
 
     <!-- MODALS -->
 
     <!-- Discord Modal -->
-    <div id="discordModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
-        <div class="modal bg-zinc-900 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div class="flex justify-between items-center border-b border-zinc-700 p-6 sticky top-0 bg-zinc-900">
-                <h2 class="text-3xl font-bold">Discord Services</h2>
-                <button onclick="closeModal('discordModal')" class="text-3xl text-zinc-400 hover:text-white">✕</button>
+    <div id="discord-modal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-8 modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold flex items-center gap-3"><i class="fab fa-discord text-indigo-400"></i> Discord Services</h2>
+                <button onclick="closeModal('discord-modal')" class="text-4xl text-zinc-400 hover:text-white">×</button>
             </div>
-            <div class="p-8 grid md:grid-cols-2 gap-6">
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <h3 class="text-2xl font-bold mb-2">Discord Accounts</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-6">€1.50 - 7.00</div>
-                    <button onclick="buyOnDiscord('Nitro Basic - 1 Month')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <h3 class="text-2xl font-bold mb-2">Nitro Gift Link</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-6">€6.50</div>
-                    <button onclick="buyOnDiscord('Nitro Boost - 1 Month')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <h3 class="text-2xl font-bold mb-2">14x Server Boosts [1 Month]</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-6">€3.50</div>
-                    <button onclick="buyOnDiscord('14x Server Boost [1 Month]')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <h3 class="text-2xl font-bold mb-2">14x Server Boosts [3 Months]</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-6">€4.50</div>
-                    <button onclick="buyOnDiscord('14x Server Boost [3 Months]')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
+            <div class="space-y-4">
+                <div class="modal-item"><span class="name">Server Boost 1 Month</span><span class="price">€4.50</span><button onclick="buyOnDiscord('Discord Accounts', '€12.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Server Boost 3 Months</span><span class="price">€5.00</span><button onclick="buyOnDiscord('Nitro Gift Link', '€15.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Discord Accounts</span><span class="price">€2.00 - €8.00</span><button onclick="buyOnDiscord('Server Boost 1 Month', '€8.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Nitro Gift Link</span><span class="price">€6.00</span><button onclick="buyOnDiscord('Server Boost 3 Months', '€22.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Nitro Tokens 1 Month</span><span class="price">€1.50</span><button onclick="buyOnDiscord('Offline Members', '€12.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Online Members</span><span class="price">€1.00</span><button onclick="buyOnDiscord('Online Members', '€19.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Offline Members</span><span class="price">€1.00</span><button onclick="buyOnDiscord('Nitro Tokens 1 Month', '€11.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
             </div>
         </div>
     </div>
 
-    <!-- Streaming Modal med Spotify -->
-    <div id="streamingModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
-        <div class="modal bg-zinc-900 rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-auto">
-            <div class="flex justify-between items-center border-b border-zinc-700 p-6 sticky top-0 bg-zinc-900">
-                <h2 class="text-3xl font-bold">Streaming Services - Lifetime</h2>
-                <button onclick="closeModal('streamingModal')" class="text-3xl text-zinc-400 hover:text-white">✕</button>
+    <!-- Streaming Modal -->
+    <div id="streaming-modal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-zinc-900 w-full max-w-3xl rounded-3xl p-8 modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold flex items-center gap-3"><i class="fas fa-film text-violet-400"></i> Streaming Services</h2>
+                <button onclick="closeModal('streaming-modal')" class="text-4xl text-zinc-400 hover:text-white">×</button>
             </div>
-            <div class="p-8 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center"><div class="text-6xl mb-6">📺</div><h3 class="text-2xl font-bold mb-2">Disney+ Lifetime</h3><div class="text-4xl font-bold text-purple-400 mb-8">€2.50</div><button onclick="buyOnDiscord('Disney+ Lifetime')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button></div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center"><div class="text-6xl mb-6">📺</div><h3 class="text-2xl font-bold mb-2">HBO Max Lifetime</h3><div class="text-4xl font-bold text-purple-400 mb-8">€2.50</div><button onclick="buyOnDiscord('HBO Max Lifetime')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button></div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center"><div class="text-6xl mb-6">📺</div><h3 class="text-2xl font-bold mb-2">Netflix Lifetime</h3><div class="text-4xl font-bold text-purple-400 mb-8">€2.50</div><button onclick="buyOnDiscord('Netflix Lifetime')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button></div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center"><div class="text-6xl mb-6">📺</div><h3 class="text-2xl font-bold mb-2">Prime Video Lifetime</h3><div class="text-4xl font-bold text-purple-400 mb-8">€6.00</div><button onclick="buyOnDiscord('Prime Video Lifetime')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button></div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center"><div class="text-6xl mb-6">📺</div><h3 class="text-2xl font-bold mb-2">Paramount+ Lifetime</h3><div class="text-4xl font-bold text-purple-400 mb-8">€1.00</div><button onclick="buyOnDiscord('Paramount+ Lifetime')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button></div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center"><div class="text-6xl mb-6">🏀</div><h3 class="text-2xl font-bold mb-2">NBA+ Lifetime</h3><div class="text-4xl font-bold text-purple-400 mb-8">€2.00</div><button onclick="buyOnDiscord('NBA+ Lifetime')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button></div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center"><div class="text-6xl mb-6">🥊</div><h3 class="text-2xl font-bold mb-2">DAZN Lifetime</h3><div class="text-4xl font-bold text-purple-400 mb-8">€1.50</div><button onclick="buyOnDiscord('DAZN Lifetime')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button></div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center"><div class="text-6xl mb-6">🎌</div><h3 class="text-2xl font-bold mb-2">Crunchyroll [Fan Member]</h3><div class="text-4xl font-bold text-purple-400 mb-8">€1.50</div><button onclick="buyOnDiscord('Crunchyroll Fan Member')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button></div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center"><div class="text-6xl mb-6">🎌</div><h3 class="text-2xl font-bold mb-2">Crunchyroll [Mega Fan Member]</h3><div class="text-4xl font-bold text-purple-400 mb-8">€3.00</div><button onclick="buyOnDiscord('Crunchyroll Mega Fan Member')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button></div>
-                
-                <!-- Spotify Premium Lifetime -->
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-6xl mb-6">🎵</div>
-                    <h3 class="text-2xl font-bold mb-2">Spotify Premium Lifetime</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€3.00</div>
-                    <button onclick="buyOnDiscord('Spotify Premium Lifetime')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="modal-item"><span class="name">Crunchyroll Fan</span><span class="price">€2.00</span><button onclick="buyOnDiscord('Crunchyroll Fan', '€5.99.')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Crunchyroll Mega</span><span class="price">€3.50</span><button onclick="buyOnDiscord('Crunchyroll Mega', '€8.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Disney+</span><span class="price">€3.00</span><button onclick="buyOnDiscord('Disney+', '€7.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Netflix</span><span class="price">€3.00</span><button onclick="buyOnDiscord('Netflix', '€9.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Prime Video</span><span class="price">€6.50</span><button onclick="buyOnDiscord('Prime Video', '€6.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Paramount+</span><span class="price">€1.40</span><button onclick="buyOnDiscord('Paramount+', '€6.49')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">HBO MAX</span><span class="price">€3.00</span><button onclick="buyOnDiscord('HBO MAX', '€8.49')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">NBA LFT</span><span class="price">€2.50</span><button onclick="buyOnDiscord('NBA LFT', '€11.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Dazn</span><span class="price">€2.00</span><button onclick="buyOnDiscord('Dazn', '€10.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Spotify Premium</span><span class="price">€3.50</span><button onclick="buyOnDiscord('Spotify Premium', '€7.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
             </div>
         </div>
     </div>
-
-    <!-- Resten af din kode (Roblox, Social, VPN, FiveM, Supplies, Terms) er fuldt bevaret nedenfor -->
 
     <!-- Roblox Modal -->
-    <div id="robloxModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
-        <div class="modal bg-zinc-900 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div class="flex justify-between items-center border-b border-zinc-700 p-6 sticky top-0 bg-zinc-900">
-                <h2 class="text-3xl font-bold">Roblox Services</h2>
-                <button onclick="closeModal('robloxModal')" class="text-3xl text-zinc-400 hover:text-white">✕</button>
+    <div id="roblox-modal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-8 modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold flex items-center gap-3"><i class="fas fa-gamepad text-blue-400"></i> Roblox Services</h2>
+                <button onclick="closeModal('roblox-modal')" class="text-4xl text-zinc-400 hover:text-white">×</button>
             </div>
-            <div class="p-8 grid md:grid-cols-2 gap-6">
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-6xl mb-6">🟥</div>
-                    <h3 class="text-2xl font-bold mb-2">1000 - 2500 Robux Accounts</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€9.00</div>
-                    <button onclick="buyOnDiscord('1000-2500 Robux Account')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-6xl mb-6">🟥</div>
-                    <h3 class="text-2xl font-bold mb-2">500 - 1000 Robux Accounts</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€5.50</div>
-                    <button onclick="buyOnDiscord('500-1000 Robux Account')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
+            <div class="space-y-4">
+                <div class="modal-item"><span class="name">500-1000 Robux Account</span><span class="price">€6.50</span><button onclick="buyOnDiscord('1000-2500 Robux', '€9.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">1000-2500 Robux Account</span><span class="price">€12.00</span><button onclick="buyOnDiscord('500-1000 Robux', '€5.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
             </div>
         </div>
     </div>
 
     <!-- Social Modal -->
-    <div id="socialModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
-        <div class="modal bg-zinc-900 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div class="flex justify-between items-center border-b border-zinc-700 p-6 sticky top-0 bg-zinc-900">
-                <h2 class="text-3xl font-bold">Social Services</h2>
-                <button onclick="closeModal('socialModal')" class="text-3xl text-zinc-400 hover:text-white">✕</button>
+    <div id="social-modal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-zinc-900 w-full max-w-3xl rounded-3xl p-8 modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold flex items-center gap-3"><i class="fas fa-users text-pink-400"></i> Social Services</h2>
+                <button onclick="closeModal('social-modal')" class="text-4xl text-zinc-400 hover:text-white">×</button>
             </div>
-            <div class="p-8 grid md:grid-cols-2 gap-6">
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-6xl mb-6">📱</div>
-                    <h3 class="text-2xl font-bold mb-2">TikTok Followers</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€3.00 - €30.00</div>
-                    <button onclick="buyOnDiscord('TikTok Followers')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-6xl mb-6">📸</div>
-                    <h3 class="text-2xl font-bold mb-2">Instagram Followers</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€7.50 - €20.00</div>
-                    <button onclick="buyOnDiscord('Instagram Followers')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
+            <div class="space-y-4">
+                <!-- TikTok Followers -->
+                <h3 class="text-xl font-bold text-pink-400 mt-4">🎵 TikTok Followers</h3>
+                <div class="modal-item"><span class="name">500 TikTok Followers</span><span class="price">€3.50</span><button onclick="buyOnDiscord('500 TikTok Followers', '€3.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">1000 TikTok Followers</span><span class="price">€6.50</span><button onclick="buyOnDiscord('1000 TikTok Followers', '€7.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">5000 TikTok Followers</span><span class="price">€25.50</span><button onclick="buyOnDiscord('5000 TikTok Followers', '€29.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">8000 TikTok Followers</span><span class="price">€31.50</span><button onclick="buyOnDiscord('8000 TikTok Followers', '€44.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+
+                <!-- Instagram Followers -->
+                <h3 class="text-xl font-bold text-pink-400 mt-6">📸 Instagram Followers</h3>
+                <div class="modal-item"><span class="name">1000 Instagram Followers</span><span class="price">€8.00</span><button onclick="buyOnDiscord('1000 Instagram Followers', '€4.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">2000 Instagram Followers</span><span class="price">€17.00</span><button onclick="buyOnDiscord('2000 Instagram Followers', '€8.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">5000 Instagram Followers</span><span class="price">€23.00</span><button onclick="buyOnDiscord('5000 Instagram Followers', '€19.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
             </div>
         </div>
     </div>
 
     <!-- VPN Modal -->
-    <div id="vpnModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
-        <div class="modal bg-zinc-900 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div class="flex justify-between items-center border-b border-zinc-700 p-6 sticky top-0 bg-zinc-900">
-                <h2 class="text-3xl font-bold">VPN Services</h2>
-                <button onclick="closeModal('vpnModal')" class="text-3xl text-zinc-400 hover:text-white">✕</button>
+    <div id="vpn-modal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-8 modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold flex items-center gap-3"><i class="fas fa-shield-alt text-cyan-400"></i> VPN Services</h2>
+                <button onclick="closeModal('vpn-modal')" class="text-4xl text-zinc-400 hover:text-white">×</button>
             </div>
-            <div class="p-8 grid md:grid-cols-2 gap-6">
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-6xl mb-6">🛡️</div>
-                    <h3 class="text-2xl font-bold mb-2">Nord VPN Lifetime</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€2.00</div>
-                    <button onclick="buyOnDiscord('Nord VPN Lifetime')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-6xl mb-6">🛡️</div>
-                    <h3 class="text-2xl font-bold mb-2">Mullvad VPN</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€4.00</div>
-                    <button onclick="buyOnDiscord('Mullvad VPN')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-6xl mb-6">🛡️</div>
-                    <h3 class="text-2xl font-bold mb-2">CyberGhost VPN</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€2.50</div>
-                    <button onclick="buyOnDiscord('CyberGhost VPN Account')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
+            <div class="space-y-4">
+                <div class="modal-item"><span class="name">NordVPN Lifetime</span><span class="price">€3.00</span><button onclick="buyOnDiscord('NordVPN Lifetime', '€2.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Mullvad VPN</span><span class="price">€5.00</span><button onclick="buyOnDiscord('Mullvad VPN', '€4.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">CyberGhost VPN</span><span class="price">€3.50</span><button onclick="buyOnDiscord('CyberGhost VPN', '€2.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">ExpressVPN Lifetime</span><span class="price">€4.50</span><button onclick="buyOnDiscord('ExpressVPN Lifetime', '€5.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
             </div>
         </div>
     </div>
 
     <!-- FiveM Modal -->
-    <div id="fivemModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
-        <div class="modal bg-zinc-900 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div class="flex justify-between items-center border-b border-zinc-700 p-6 sticky top-0 bg-zinc-900">
-                <h2 class="text-3xl font-bold">FiveM Services</h2>
-                <button onclick="closeModal('fivemModal')" class="text-3xl text-zinc-400 hover:text-white">✕</button>
+    <div id="fivem-modal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-8 modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold flex items-center gap-3"><i class="fas fa-car text-orange-400"></i> FiveM Services</h2>
+                <button onclick="closeModal('fivem-modal')" class="text-4xl text-zinc-400 hover:text-white">×</button>
             </div>
-            <div class="p-8">
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center max-w-md mx-auto">
-                    <div class="text-6xl mb-6">🚔</div>
-                    <h3 class="text-2xl font-bold mb-2">FiveM Ready Accounts</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€1.00</div>
-                    <button onclick="buyOnDiscord('FiveM Ready Account')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
+            <div class="space-y-4">
+                <div class="modal-item"><span class="name">FiveM Ready Account</span><span class="price">€1.50</span><button onclick="buyOnDiscord('FiveM Ready Account', '€1.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">FiveM Spoofer</span><span class="price">€30.00</span><button onclick="buyOnDiscord('FiveM Spoofer', '€4.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
             </div>
         </div>
     </div>
 
-    <!-- Supplies Modal -->
-    <div id="suppliesModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
-        <div class="modal bg-zinc-900 rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-auto">
-            <div class="flex justify-between items-center border-b border-zinc-700 p-6 sticky top-0 bg-zinc-900">
-                <h2 class="text-3xl font-bold">Suppliers</h2>
-                <button onclick="closeModal('suppliesModal')" class="text-3xl text-zinc-400 hover:text-white">✕</button>
+    <!-- Suppliers Modal -->
+    <div id="suppliers-modal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-8 modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold flex items-center gap-3"><i class="fas fa-truck text-amber-400"></i> Suppliers</h2>
+                <button onclick="closeModal('suppliers-modal')" class="text-4xl text-zinc-400 hover:text-white">×</button>
             </div>
-            <div class="p-8 grid md:grid-cols-3 gap-6">
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-6xl mb-6">📦</div>
-                    <h3 class="text-2xl font-bold mb-3">All Suppliers</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€30.00</div>
-                    <button onclick="buyOnDiscord('All Suppliers')" class="w-full py-4 bg-gradient-to-r from-purple-600 to-violet-600 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-5xl mb-6">📦</div>
-                    <h3 class="text-2xl font-bold mb-3">Streaming Supplies</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€18.00</div>
-                    <button onclick="buyOnDiscord('Streaming Supplies')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-5xl mb-6">📦</div>
-                    <h3 class="text-2xl font-bold mb-3">Server Boost Supplies</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€20.00</div>
-                    <button onclick="buyOnDiscord('Discord Server Boost Supplies')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
-                <div class="product-card border border-purple-500/30 rounded-3xl p-8 text-center">
-                    <div class="text-5xl mb-6">📦</div>
-                    <h3 class="text-2xl font-bold mb-3">Roblox Supplies</h3>
-                    <div class="text-4xl font-bold text-purple-400 mb-8">€17.00</div>
-                    <button onclick="buyOnDiscord('Roblox Supplies')" class="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-semibold">Buy on Discord</button>
-                </div>
+            <div class="space-y-4">
+                <div class="modal-item"><span class="name">All Suppliers</span><span class="price">€40.00</span><button onclick="buyOnDiscord('All Suppliers', '€30.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Streaming Supplies</span><span class="price">€25.00</span><button onclick="buyOnDiscord('Streaming Supplies', '€18.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Discord Boost Supplies</span><span class="price">€20.00</span><button onclick="buyOnDiscord('Discord Boost Supplies', '€20.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
+                <div class="modal-item"><span class="name">Roblox Supplies</span><span class="price">€20.00</span><button onclick="buyOnDiscord('Roblox Supplies', '€17.99')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-sm">Buy</button></div>
             </div>
         </div>
     </div>
 
     <!-- Terms Modal -->
-    <div id="termsModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
-        <div class="modal bg-zinc-900 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-auto">
-            <div class="flex justify-between items-center border-b border-zinc-700 p-6 sticky top-0 bg-zinc-900">
+    <div id="terms-modal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-8 modal-content">
+            <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">Terms of Service</h2>
-                <button onclick="closeModal('termsModal')" class="text-3xl text-zinc-400 hover:text-white">✕</button>
+                <button onclick="closeModal('terms-modal')" class="text-4xl text-zinc-400 hover:text-white">×</button>
             </div>
-            <div class="p-10 space-y-8 text-zinc-300">
-                <div><h3 class="font-bold text-lg mb-2">Payment First</h3><p>All purchases must be paid for before the product is delivered.</p></div>
-                <div><h3 class="font-bold text-lg mb-2">No Refunds</h3><p>Once the product has been delivered, refunds will not be given.</p></div>
-                <div><h3 class="font-bold text-lg mb-2">Delivery Time</h3><p>Delivery usually happens quickly after payment, but in some cases there may be a short wait.</p></div>
-                <div><h3 class="font-bold text-lg mb-2">Abuse</h3><p>Abuse, scam attempts, or chargebacks will result in being blacklisted from the shop.</p></div>
-                <div><h3 class="font-bold text-lg mb-2">Security</h3><p>We will never ask for permissions, account details, or personal information.</p></div>
-                <div><h3 class="font-bold text-lg mb-2">Responsibility</h3><p>We are not responsible for issues with Discord or changes made by Discord.</p></div>
+            <div class="space-y-6 text-zinc-300">
+                <div><h3 class="font-bold text-lg mb-2">💳 Payment First</h3><p>All purchases must be paid for before the product is delivered.</p></div>
+                <div><h3 class="font-bold text-lg mb-2">❌ No Refunds</h3><p>Once the product has been delivered, refunds will not be given.</p></div>
+                <div><h3 class="font-bold text-lg mb-2">⚡ Quick Delivery</h3><p>Delivery usually happens quickly after payment, but in some cases there may be a short wait.</p></div>
+                <div><h3 class="font-bold text-lg mb-2">🚫 No Abuse</h3><p>Abuse, scam attempts, or chargebacks will result in being blacklisted from the shop.</p></div>
+                <div><h3 class="font-bold text-lg mb-2">🔒 Security</h3><p>We will never ask for permissions, account details, or personal information.</p></div>
+                <div><h3 class="font-bold text-lg mb-2">⚠️ Responsibility</h3><p>We are not responsible for issues with Discord or changes made by Discord.</p></div>
             </div>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="bg-black py-16 border-t border-zinc-900">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <div class="flex justify-center items-center gap-3 mb-6">
-                <span class="text-4xl font-bold text-purple-500 neon-text">Sitro</span>
-                <span class="text-4xl font-bold">Market</span>
-            </div>
-            <p class="text-zinc-500">Fast • Reliable • Cheap Services</p>
-            <p class="text-zinc-600 text-sm mt-8">© 2026 Sitro Market. All Rights Reserved.</p>
-        </div>
-    </footer>
-
     <script>
-        function toggleBodyScroll(disable) {
-            document.body.style.overflow = disable ? 'hidden' : 'visible';
+        function toggleFaq(element) {
+            element.classList.toggle('open');
         }
 
         function openModal(id) {
             const modal = document.getElementById(id);
             if (modal) {
+                document.body.style.overflow = 'hidden';
                 modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                toggleBodyScroll(true);
+                modal.classList.add('active');
             }
         }
 
         function closeModal(id) {
             const modal = document.getElementById(id);
             if (modal) {
+                document.body.style.overflow = 'visible';
                 modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                toggleBodyScroll(false);
+                modal.classList.remove('active');
             }
         }
 
-        function openDiscordModal() { openModal('discordModal'); }
-        function openStreamingModal() { openModal('streamingModal'); }
-        function openRobloxModal() { openModal('robloxModal'); }
-        function openSocialModal() { openModal('socialModal'); }
-        function openVpnModal() { openModal('vpnModal'); }
-        function openFivemModal() { openModal('fivemModal'); }
-        function openSuppliesModal() { openModal('suppliesModal'); }
-        function openTermsModal() { 
-            event.preventDefault(); 
-            openModal('termsModal'); 
+        function buyOnDiscord(item, price) {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.add('hidden');
+                modal.classList.remove('active');
+            });
+            document.body.style.overflow = 'visible';
+            alert(`✅ ${item}\nPrice: ${price}\n\nPurchase will be completed on our Discord server!`);
+            window.open("https://discord.gg/R3FdPRM2t", "_blank");
         }
 
-        // Click outside to close
-        document.querySelectorAll('.fixed.inset-0').forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) closeModal(this.id);
-            });
+        function joinDiscord() {
+            window.open("https://discord.gg/R3FdPRM2t", "_blank");
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToServices() {
+            document.getElementById('services').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") {
+                document.querySelectorAll('.modal.active').forEach(modal => closeModal(modal.id));
+            }
         });
 
-        function buyOnDiscord(product) {
-            alert(`✅ You selected: ${product}\n\nPlease join our Discord to complete your purchase!`);
-            window.open('https://discord.gg/R3FdPRM2t', '_blank');
-        }
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal.id);
+            });
+        });
     </script>
 </body>
 </html>
